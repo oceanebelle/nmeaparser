@@ -7,18 +7,19 @@ import oceanebelle.parser.engine.ParserEngine;
 import oceanebelle.parser.engine.ParserEngineBuilder;
 import oceanebelle.parser.engine.ParserHandler;
 import oceanebelle.parser.engine.Translator;
+import oceanebelle.parser.engine.nmea.model.NmeaProperty;
 
 import java.util.*;
 
-public class NmeaParserEngineBuilder implements ParserEngineBuilder<NmeaEvent> {
+public class NmeaParserEngineBuilder implements ParserEngineBuilder<NmeaEvent, NmeaProperty> {
 
-    private final Map<NmeaEvent, Parser<NmeaEvent>> allParsers;
+    private final Map<NmeaEvent, Parser<NmeaEvent, NmeaProperty>> allParsers;
     private final Translator<NmeaEvent> translator;
-    private final Map<NmeaEvent, ParserHandler<NmeaEvent>> handlers = new HashMap<NmeaEvent, ParserHandler<NmeaEvent>>();
+    private final Map<NmeaEvent, ParserHandler<NmeaEvent, NmeaProperty>> handlers = new HashMap<NmeaEvent, ParserHandler<NmeaEvent, NmeaProperty>>();
     private EnumSet<NmeaEvent> events;
     private ErrorHandler errorHandler;
 
-    public NmeaParserEngineBuilder(Map<NmeaEvent, Parser<NmeaEvent>> parsers, Translator<NmeaEvent> translator) {
+    public NmeaParserEngineBuilder(Map<NmeaEvent, Parser<NmeaEvent, NmeaProperty>> parsers, Translator<NmeaEvent> translator) {
         this.allParsers = Collections.unmodifiableMap(parsers);
         this.translator = translator;
     }
@@ -30,7 +31,7 @@ public class NmeaParserEngineBuilder implements ParserEngineBuilder<NmeaEvent> {
     }
 
     @Override
-    public NmeaParserEngineBuilder addEventHandler(ParserHandler<NmeaEvent> handler) {
+    public NmeaParserEngineBuilder addEventHandler(ParserHandler<NmeaEvent, NmeaProperty> handler) {
         handlers.put(handler.getHandledEvent(), handler);
         return this;
     }
@@ -59,15 +60,15 @@ public class NmeaParserEngineBuilder implements ParserEngineBuilder<NmeaEvent> {
             throw new IllegalStateException("Required events are not supported or missing or no parser/handler found");
         }
 
-        Map<NmeaEvent, Parser<NmeaEvent>> engineParsers = new HashMap<NmeaEvent, Parser<NmeaEvent>>(events.size());
-        Map<NmeaEvent, ParserHandler<NmeaEvent>> engineHandlers = new HashMap<NmeaEvent, ParserHandler<NmeaEvent>>(events.size());
+        Map<NmeaEvent, Parser<NmeaEvent, NmeaProperty>> engineParsers = new HashMap<NmeaEvent, Parser<NmeaEvent, NmeaProperty>>(events.size());
+        Map<NmeaEvent, ParserHandler<NmeaEvent, NmeaProperty>> engineHandlers = new HashMap<NmeaEvent, ParserHandler<NmeaEvent, NmeaProperty>>(events.size());
 
         for (NmeaEvent event : events) {
             engineParsers.put(event, allParsers.get(event));
             engineHandlers.put(event, handlers.get(event));
         }
 
-        return new ParallelParserEngine<NmeaEvent>(engineParsers, engineHandlers, translator, errorHandler);
+        return new ParallelParserEngine<NmeaEvent, NmeaProperty>(engineParsers, engineHandlers, translator, errorHandler);
     }
 
     private boolean isValid() {

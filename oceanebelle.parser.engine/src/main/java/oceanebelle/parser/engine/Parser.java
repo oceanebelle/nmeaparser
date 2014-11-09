@@ -1,6 +1,6 @@
 package oceanebelle.parser.engine;
 
-public interface Parser<T> {
+public interface Parser<T, P> {
     T getHandledEvent();
-    void parse(String rawSentence, ParserHandler<T> handler) throws ParseException;
+    void parse(String rawSentence, ParserHandler<T, P> handler) throws ParseException;
 }

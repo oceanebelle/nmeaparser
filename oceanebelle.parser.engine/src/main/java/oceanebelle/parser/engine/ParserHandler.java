@@ -1,8 +1,14 @@
 package oceanebelle.parser.engine;
 
-import oceanebelle.parser.engine.nmea.model.NmeaDataAdapter;
+import java.util.Map;
 
-public interface ParserHandler<T> {
+/**
+ * handles a sentence
+ *
+ * @param <T> event type
+ * @param <P> property type
+ */
+public interface ParserHandler<T, P> {
     /**
      * Event to be consumed by this handler
      * @return the event T
@@ -13,5 +19,5 @@ public interface ParserHandler<T> {
      * Callback method when an event is successfully processed into data.
      * @param payload sentence data in easily consumable interface
      */
-    public void handle(NmeaDataAdapter payload);
+    public void handle(Map<P, Object> payload);
 }

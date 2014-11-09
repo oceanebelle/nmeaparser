@@ -1,6 +1,7 @@
 package oceanebelle.parser.engine;
 
 import oceanebelle.parser.engine.nmea.NmeaEvent;
+import oceanebelle.parser.engine.nmea.model.NmeaProperty;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,16 +25,16 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
 public class ParallelParserEngineTest {
 
     @Mock
-    private Parser<NmeaEvent> mockGpapbParser;
+    private Parser<NmeaEvent, NmeaProperty> mockGpapbParser;
     @Mock
-    private ParserHandler<NmeaEvent> mockGpapbHandler;
+    private ParserHandler<NmeaEvent, NmeaProperty> mockGpapbHandler;
     @Mock
     private Translator<NmeaEvent> mockTranslator;
 
-    private Map<NmeaEvent, Parser<NmeaEvent>> parsers = new HashMap<NmeaEvent, Parser<NmeaEvent>>();
-    private Map<NmeaEvent, ParserHandler<NmeaEvent>> handlers = new HashMap<NmeaEvent, ParserHandler<NmeaEvent>>();
+    private Map<NmeaEvent, Parser<NmeaEvent, NmeaProperty>> parsers = new HashMap<NmeaEvent, Parser<NmeaEvent, NmeaProperty>>();
+    private Map<NmeaEvent, ParserHandler<NmeaEvent, NmeaProperty>> handlers = new HashMap<NmeaEvent, ParserHandler<NmeaEvent, NmeaProperty>>();
 
-    private ParallelParserEngine<NmeaEvent> engine;
+    private ParallelParserEngine<NmeaEvent, NmeaProperty> engine;
 
 
     @Before
@@ -43,7 +44,7 @@ public class ParallelParserEngineTest {
         parsers.put(NmeaEvent.GPAPB, mockGpapbParser);
         handlers.put(NmeaEvent.GPAPB, mockGpapbHandler);
 
-        engine = new ParallelParserEngine<NmeaEvent>(parsers, handlers, mockTranslator, null);
+        engine = new ParallelParserEngine<NmeaEvent, NmeaProperty>(parsers, handlers, mockTranslator, null);
     }
 
 

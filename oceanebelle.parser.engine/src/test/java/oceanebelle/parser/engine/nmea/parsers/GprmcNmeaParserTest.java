@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Calendar;
+import java.util.Map;
 import java.util.TimeZone;
 
 import static junit.framework.Assert.assertEquals;
@@ -29,10 +30,10 @@ import static org.mockito.Mockito.when;
 public class GprmcNmeaParserTest {
 
     @Captor
-    private ArgumentCaptor<NmeaDataAdapter> adapterCaptor;
+    private ArgumentCaptor<Map<NmeaProperty, Object>> adapterCaptor;
 
     @Mock
-    private ParserHandler<NmeaEvent> handler;
+    private ParserHandler<NmeaEvent, NmeaProperty> handler;
 
     private GprmcNmeaParser parser;
 
@@ -58,7 +59,7 @@ public class GprmcNmeaParserTest {
 
         verify(handler).handle(adapterCaptor.capture());
 
-        NmeaDataAdapter adapter = adapterCaptor.getValue();
+        NmeaDataAdapter adapter = new NmeaDataAdapter(adapterCaptor.getValue());
 
         // TODO: The data will still be read, should processing be skipped?
         assertFalse(adapter.isChecksumValid());
@@ -73,7 +74,7 @@ public class GprmcNmeaParserTest {
 
         verify(handler).handle(adapterCaptor.capture());
 
-        NmeaDataAdapter adapter = adapterCaptor.getValue();
+        NmeaDataAdapter adapter = new NmeaDataAdapter(adapterCaptor.getValue());
 
         assertCommonNmeaData(adapter);
 
@@ -92,7 +93,7 @@ public class GprmcNmeaParserTest {
 
         verify(handler).handle(adapterCaptor.capture());
 
-        NmeaDataAdapter adapter = adapterCaptor.getValue();
+        NmeaDataAdapter adapter = new NmeaDataAdapter(adapterCaptor.getValue());
 
         assertCommonNmeaData(adapter);
 

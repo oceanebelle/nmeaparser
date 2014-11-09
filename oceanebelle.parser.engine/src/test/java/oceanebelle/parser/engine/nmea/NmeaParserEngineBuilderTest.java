@@ -4,6 +4,7 @@ import oceanebelle.parser.engine.Parser;
 import oceanebelle.parser.engine.ParserEngine;
 import oceanebelle.parser.engine.ParserHandler;
 import oceanebelle.parser.engine.Translator;
+import oceanebelle.parser.engine.nmea.model.NmeaProperty;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,13 +23,13 @@ public class NmeaParserEngineBuilderTest {
     @Mock
     private Translator<NmeaEvent> mockTranslator;
     @Mock
-    private Parser<NmeaEvent> mockParser;
+    private Parser<NmeaEvent, NmeaProperty> mockParser;
     @Mock
-    private ParserHandler<NmeaEvent> mockHandler;
+    private ParserHandler<NmeaEvent, NmeaProperty> mockHandler;
     @Mock
-    private ParserHandler<NmeaEvent> mockMissingEventHandler;
+    private ParserHandler<NmeaEvent, NmeaProperty> mockMissingEventHandler;
 
-    private Map<NmeaEvent, Parser<NmeaEvent>> parsers;
+    private Map<NmeaEvent, Parser<NmeaEvent, NmeaProperty>> parsers;
     private NmeaParserEngineBuilder builder;
 
     @Before
@@ -39,7 +40,7 @@ public class NmeaParserEngineBuilderTest {
         when(mockHandler.getHandledEvent()).thenReturn(NmeaEvent.GPAPB);
         when(mockParser.getHandledEvent()).thenReturn(NmeaEvent.GPAPB);
 
-        parsers = new HashMap<NmeaEvent, Parser<NmeaEvent>>();
+        parsers = new HashMap<NmeaEvent, Parser<NmeaEvent, NmeaProperty>>();
         parsers.put(NmeaEvent.GPAPB, mockParser);
 
         builder = new NmeaParserEngineBuilder(parsers, mockTranslator);

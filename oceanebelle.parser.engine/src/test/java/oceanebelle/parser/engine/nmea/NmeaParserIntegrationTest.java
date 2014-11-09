@@ -5,8 +5,7 @@ import oceanebelle.parser.engine.ParseException;
 import oceanebelle.parser.engine.ParserEngine;
 import oceanebelle.parser.engine.ParserHandler;
 
-import oceanebelle.parser.engine.nmea.model.NmeaDataAdapter;
-
+import oceanebelle.parser.engine.nmea.model.NmeaProperty;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +16,7 @@ import org.mockito.stubbing.Answer;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyMapOf;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
@@ -29,9 +29,9 @@ public class NmeaParserIntegrationTest {
     @Mock
     private ErrorHandler errHandler;
     @Mock
-    private ParserHandler<NmeaEvent> ggaHandler;
+    private ParserHandler<NmeaEvent, NmeaProperty> ggaHandler;
     @Mock
-    private ParserHandler<NmeaEvent> rmcHandler;
+    private ParserHandler<NmeaEvent, NmeaProperty> rmcHandler;
 
     @Before
     public void setup() {
@@ -66,8 +66,8 @@ public class NmeaParserIntegrationTest {
 
         assertEquals(1349, events_processed);
 
-        verify(ggaHandler, atLeast(1)).handle(any(NmeaDataAdapter.class));
-        verify(rmcHandler, atLeast(1)).handle(any(NmeaDataAdapter.class));
+        verify(ggaHandler, atLeast(1)).handle(anyMapOf(NmeaProperty.class, Object.class));
+        verify(rmcHandler, atLeast(1)).handle(anyMapOf(NmeaProperty.class, Object.class));
 
     }
 }

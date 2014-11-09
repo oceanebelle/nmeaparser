@@ -1,6 +1,7 @@
 package oceanebelle.parser.engine.nmea;
 
 import oceanebelle.parser.engine.Parser;
+import oceanebelle.parser.engine.nmea.model.NmeaProperty;
 import oceanebelle.parser.engine.nmea.parsers.GprmcNmeaParser;
 import oceanebelle.parser.engine.nmea.parsers.GpggaNmeaParser;
 
@@ -23,16 +24,16 @@ import java.util.Map;
  */
 public final class NmeaParserEngineFactory {
 
-    private final static Map<NmeaEvent, Parser<NmeaEvent>> parsers;
+    private final static Map<NmeaEvent, Parser<NmeaEvent, NmeaProperty>> parsers;
 
     static {
         // TODO: Add all supported parsers here. One for every ParseEvent/type
-        parsers = new HashMap<NmeaEvent, Parser<NmeaEvent>>();
+        parsers = new HashMap<NmeaEvent, Parser<NmeaEvent, NmeaProperty>>();
 
-        Parser<NmeaEvent> ggaParser = new GpggaNmeaParser();
+        Parser<NmeaEvent, NmeaProperty> ggaParser = new GpggaNmeaParser();
         parsers.put(ggaParser.getHandledEvent(), ggaParser);
 
-        Parser<NmeaEvent> rmcParser = new GprmcNmeaParser();
+        Parser<NmeaEvent, NmeaProperty> rmcParser = new GprmcNmeaParser();
         parsers.put(rmcParser.getHandledEvent(), rmcParser);
     }
 

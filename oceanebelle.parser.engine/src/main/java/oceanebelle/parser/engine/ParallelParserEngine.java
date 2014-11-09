@@ -7,18 +7,18 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-public class ParallelParserEngine<T> implements ParserEngine {
+public class ParallelParserEngine<T, P> implements ParserEngine {
 
     private final BlockingQueue<ParserTask> taskQueue = new ArrayBlockingQueue<ParserTask>(100);
 
-    private final Map<T, Parser<T>> engineParsers;
-    private final Map<T, ParserHandler<T>> engineHandlers;
+    private final Map<T, Parser<T, P>> engineParsers;
+    private final Map<T, ParserHandler<T, P>> engineHandlers;
     private final Translator<T> translator;
     private final ErrorHandler errorHandler;
 
     private transient boolean done = false;
 
-    public ParallelParserEngine(Map<T, Parser<T>> engineParsers, Map<T, ParserHandler<T>> engineHandlers, Translator<T> translator, ErrorHandler errorHandler) {
+    public ParallelParserEngine(Map<T, Parser<T, P>> engineParsers, Map<T, ParserHandler<T, P>> engineHandlers, Translator<T> translator, ErrorHandler errorHandler) {
         this.engineParsers = engineParsers;
         this.engineHandlers = engineHandlers;
         this.translator = translator;
@@ -45,7 +45,7 @@ public class ParallelParserEngine<T> implements ParserEngine {
                 T event = translator.translate(sentence);
                 if (event != null && engineParsers.containsKey(event)) {
                     events_processed++;
-                    ParserTask<T> task = new ParserTask<T>(sentence, engineParsers.get(event), engineHandlers.get(event), errorHandler);
+                    ParserTask<T, P> task = new ParserTask<T, P>(sentence, engineParsers.get(event), engineHandlers.get(event), errorHandler);
                     // sometimes the processor can take some time so wait patiently...
                     while (!taskQueue.offer(task, 1l, TimeUnit.MILLISECONDS));
                 }
@@ -91,13 +91,13 @@ public class ParallelParserEngine<T> implements ParserEngine {
         }
     }
 
-    private static class ParserTask<HT> {
-        private final Parser<HT> parser;
-        private final ParserHandler<HT> handler;
+    private static class ParserTask<HT, HP> {
+        private final Parser<HT, HP> parser;
+        private final ParserHandler<HT, HP> handler;
         private final String sentence;
         private final ErrorHandler errHandler;
 
-        ParserTask(String sentence, Parser<HT> parser, ParserHandler<HT> handler, ErrorHandler errHandler) {
+        ParserTask(String sentence, Parser<HT, HP> parser, ParserHandler<HT, HP> handler, ErrorHandler errHandler) {
             this.parser = parser;
             this.handler = handler;
             this.sentence = sentence;

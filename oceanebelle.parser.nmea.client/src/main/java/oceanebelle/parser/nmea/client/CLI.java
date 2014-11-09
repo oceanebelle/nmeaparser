@@ -3,10 +3,9 @@ package oceanebelle.parser.nmea.client;
 import oceanebelle.parser.engine.ErrorHandler;
 import oceanebelle.parser.engine.ParseException;
 import oceanebelle.parser.engine.ParserEngine;
-import oceanebelle.parser.engine.ParserHandler;
-import oceanebelle.parser.engine.nmea.NmeaEvent;
 import oceanebelle.parser.engine.nmea.NmeaParserEngineBuilder;
 import oceanebelle.parser.engine.nmea.NmeaParserEngineFactory;
+import oceanebelle.parser.engine.nmea.helper.NmeaHandlers;
 import oceanebelle.parser.engine.nmea.model.NmeaDataAdapter;
 import oceanebelle.parser.engine.nmea.model.NmeaProperty;
 
@@ -31,12 +30,7 @@ public class CLI
         });
 
         // Handler for GGA
-        builder.addEventHandler(new ParserHandler<NmeaEvent>() {
-            @Override
-            public NmeaEvent getHandledEvent() {
-                return NmeaEvent.GPGGA;
-            }
-
+        builder.addEventHandler(NmeaHandlers.forGGA(new NmeaHandlers.HandlerAdapter() {
             @Override
             public void handle(NmeaDataAdapter payload) {
                 // payload will have properties applicable to GGA
@@ -49,19 +43,14 @@ public class CLI
                         NmeaProperty.Altitude,
                         NmeaProperty.Satellites
                 ));
-
             }
-        });
+        }));
 
         // Handler for RMC
-        builder.addEventHandler(new ParserHandler<NmeaEvent>() {
-            @Override
-            public NmeaEvent getHandledEvent() {
-                return NmeaEvent.GPRMC;
-            }
-
+        builder.addEventHandler(NmeaHandlers.forRMC(new NmeaHandlers.HandlerAdapter() {
             @Override
             public void handle(NmeaDataAdapter payload) {
+                // payload will have properties applicable to GGA
                 System.out.println(toPrettyPrint(
                         payload,
                         NmeaProperty.Type,
@@ -71,7 +60,7 @@ public class CLI
                         NmeaProperty.DateTimeData
                 ));
             }
-        });
+        }));
 
         // 3. Build the engine
         ParserEngine engine = builder.build();
