@@ -1,19 +1,22 @@
 oceanebelle.parser.nmea
 =======================
 
+A framework for parsing line by line input sources.
+Each line is distinct and unrelated from other lines in the same source.
+
 This project is composed of two modules.
 
-1. oceanebelle.parser.engine
-2. oceanebelle.parser.nmea.client
+1. oceanebelle.parser.engine - parser library framework
+2. oceanebelle.parser.nmea.client - sample usage
 
-# Supported types in oceanebelle.parser.engine:
+## Implemented input sources:
 
-1. NMEA
+1. NMEA - sentences currently supported
   * GGA
   * RMC
 
 
-# How to use:
+## How to use for parsing NMEA input:
 The module oceanebelle.parser.engine produces a **oceanebelle.parser.engine.jar** which you will need to
 references in your classpath
 
@@ -32,6 +35,8 @@ Imports required by this library
 ```
 
 Code Fragment as found in oceanebelle.parser.nmea.client module
+Note that call to engine.parse() is synchronous that is the call will not complete until all
+lines are read and registered events handled.
 
 ```java
         // 1. Create a builder from NMEA factory
