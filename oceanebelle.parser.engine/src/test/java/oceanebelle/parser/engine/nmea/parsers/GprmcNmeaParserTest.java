@@ -22,6 +22,8 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
+import static org.mockito.Matchers.anyMapOf;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -102,6 +104,15 @@ public class GprmcNmeaParserTest {
         assertEquals(Coordinates.of("3751.65","S","14507.36","E"), adapter.getCoordinates());
         assertEquals(0f, adapter.getSpeed());
         assertEquals(getCalendar(1998, 9, 13, 8, 18, 36), adapter.getDateTimeData().getCalendar());
+    }
+
+    @Test
+    public void whenParsingEmptyPattern() throws ParseException {
+        String sentence = "$GPRMC,,V,,,,,,,,,,N*53";
+
+        parser.parse(sentence, handler);
+
+        verify(handler, times(0)).handle(anyMapOf(NmeaProperty.class, Object.class));
     }
 
 

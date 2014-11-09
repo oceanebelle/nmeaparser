@@ -22,6 +22,8 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
+import static org.mockito.Matchers.anyMapOf;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -105,6 +107,29 @@ public class GpggaNmeaParserTest {
         assertEquals(Integer.valueOf(4), adapter.getSatellites());
         assertEquals(FixQuality.GPS_SPS, adapter.getFixQuality());
         assertEquals(77.8f, adapter.getAltitude());
+
+    }
+
+    @Test
+    public void whenParsingValidPattern3() throws ParseException {
+        String sentence = "$GPGGA,103748,5121.578305,N,00011.515493,W,2,09,0.8,85.0,M,47.0,M,,*61";
+
+        parser.parse(sentence, handler);
+
+        verify(handler).handle(adapterCaptor.capture());
+
+        NmeaDataAdapter adapter = new NmeaDataAdapter(adapterCaptor.getValue());
+
+        assertCommonNmeaData(adapter);
+    }
+
+    @Test
+    public void whenParsingEmptyPattern() throws ParseException {
+        String sentence = "$GPGGA,,,,,,0,,,,,,,,*66";
+
+        parser.parse(sentence, handler);
+
+        verify(handler, times(0)).handle(anyMapOf(NmeaProperty.class, Object.class));
 
     }
 

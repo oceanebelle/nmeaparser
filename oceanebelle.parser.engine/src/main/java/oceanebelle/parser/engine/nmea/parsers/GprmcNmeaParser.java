@@ -35,6 +35,7 @@ import java.util.regex.Pattern;
 public class GprmcNmeaParser extends AbstractNmeaRegexParser {
 
     private static final int TIM = 1;
+    private static final int STATUS = 3;
     private static final int LAT = 4;
     private static final int LATD = 5;
     private static final int LON = 6;
@@ -42,23 +43,29 @@ public class GprmcNmeaParser extends AbstractNmeaRegexParser {
     private static final int SPEED = 8;
     private static final int DATE = 10;
 
-    private final static Pattern GGA_PATTERN = Pattern.compile(
+    private final static Pattern RMC_PATTERN = Pattern.compile(
             "^\\$GPRMC," +
-                    "(\\d+)(\\.\\d+)?," +           // tim 1 & 2
+                    "(\\d+)?(\\.\\d+)?," +           // tim 1 & 2
                     "([AV])," +                     // status 3
-                    "(\\d+\\.\\d+)," +              // lat 4
-                    "([NS])," +                     // latd 5
-                    "(\\d+\\.\\d+)," +              // lon 6
-                    "([EW])," +                     // lond 7
-                    "(\\d+\\.\\d+)," +              // speed 8
-                    "(\\d+\\.\\d+)," +              // track 9
-                    "(\\d+)," +                     // date 10
+                    "(\\d+\\.\\d+)?," +              // lat 4
+                    "([NS])?," +                     // latd 5
+                    "(\\d+\\.\\d+)?," +              // lon 6
+                    "([EW])?," +                     // lond 7
+                    "(\\d+\\.\\d+)?," +              // speed 8
+                    "(\\d+\\.\\d+)?," +              // track 9
+                    "(\\d+)?," +                     // date 10
                     "(\\d+\\.\\d+)?," +           // mag 11
+                    "([^,]*,)?" +
                     "[^,]*\\*([A-Za-z\\d]+)$");     // chk 12
 
     @Override
     public NmeaEvent getHandledEvent() {
         return NmeaEvent.GPRMC;
+    }
+
+    @Override
+    public boolean isValid(Matcher matcher) {
+        return !matcher.group(STATUS).equals("V");
     }
 
     @Override
@@ -70,14 +77,19 @@ public class GprmcNmeaParser extends AbstractNmeaRegexParser {
                 matcher.group(LATD),
                 matcher.group(LON),
                 matcher.group(LOND)));
-        builder.setSpeed(Float.valueOf(matcher.group(SPEED)));
+        builder.setSpeed(Float.valueOf(getValueOrDefault(matcher, SPEED, "0")));
         builder.setDateTimeData(DateTimeData.forDateAndTime(matcher.group(DATE), matcher.group(TIM)));
 
         return builder.toMap();
     }
 
+    private String getValueOrDefault(Matcher matcher, int group, String defaultValue) {
+        String value = matcher.group(group);
+        return (value != null && !value.isEmpty()) ? value : defaultValue;
+    }
+
     @Override
     protected Pattern getPattern() {
-        return GGA_PATTERN;
+        return RMC_PATTERN;
     }
 }

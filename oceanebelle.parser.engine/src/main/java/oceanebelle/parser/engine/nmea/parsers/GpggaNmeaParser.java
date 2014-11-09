@@ -45,33 +45,39 @@ import java.util.regex.Pattern;
 public class GpggaNmeaParser extends AbstractNmeaRegexParser {
 
 
-    private static final int LAT = 2;
-    private static final int LATD = 3;
-    private static final int LON = 4;
-    private static final int LOND = 5;
-    private static final int FIX = 6;
-    private static final int SAT = 7;
-    private static final int ALT = 9;
+    private static final int LAT = 3;
+    private static final int LATD = 4;
+    private static final int LON = 5;
+    private static final int LOND = 6;
+    private static final int FIX = 7;
+    private static final int SAT = 8;
+    private static final int ALT = 10;
 
     private final static Pattern GGA_PATTERN = Pattern.compile(
             "^\\$GPGGA," +
-            "\\d+(\\.\\d+)?," +         // tim      1
-            "(\\d+\\.\\d+)," +          // lat      2
-            "([NS])," +                 // latd     3
-            "(\\d+\\.\\d+)," +          // lon      4
-            "([EW])," +                 // lond     5
-            "([0-8])," +                // fix      6
-            "([0-8]+)," +               // sat      7
-            "(\\d+\\.\\d+)," +          // hdil     8
-            "(\\d+\\.\\d+)," +          // alt      9
-            "([M])," +                  // altunit  10
-            "(\\d+\\.\\d+)," +          // geo      11
-            "([M]),[^,]*," +            // geounit  12
-            "[^,]*\\*([A-Za-z\\d]+)$"); // checksum 13
+            "(\\d+)?(\\.\\d+)?," +         // tim      1 & 2
+            "(\\d+\\.\\d+)?," +          // lat      3
+            "([NS])?," +                 // latd     4
+            "(\\d+\\.\\d+)?," +          // lon      5
+            "([EW])?," +                 // lond     6
+            "([0-8])," +                // fix      7
+            "([\\d]+)?," +               // sat      8
+            "(\\d+\\.\\d+)?," +          // hdil     9
+            "(\\d+\\.\\d+)?," +          // alt      10
+            "([M])?," +                  // altunit  11
+            "(\\d+\\.\\d+)?," +          // geo      12
+            "([M])?," +                 // geounit  13
+            "[^,]*," +
+            "[^,]*\\*([A-Za-z\\d]+)$"); // checksum 14
 
     @Override
     public NmeaEvent getHandledEvent() {
         return NmeaEvent.GPGGA;
+    }
+
+    @Override
+    public boolean isValid(Matcher matcher) {
+        return !FixQuality.of(matcher.group(FIX)).equals(FixQuality.INVALID);
     }
 
     @Override

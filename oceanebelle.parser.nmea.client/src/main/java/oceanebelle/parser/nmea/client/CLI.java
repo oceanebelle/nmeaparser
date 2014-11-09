@@ -9,13 +9,15 @@ import oceanebelle.parser.engine.nmea.helper.NmeaHandlers;
 import oceanebelle.parser.engine.nmea.model.NmeaDataAdapter;
 import oceanebelle.parser.engine.nmea.model.NmeaProperty;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
 /**
  *
  */
 public class CLI
 {
-    public static void main( String[] args )
-    {
+    public static void main( String[] args ) throws FileNotFoundException {
 
         // 1. Create a builder from NMEA factory
         NmeaParserEngineBuilder builder = NmeaParserEngineFactory.newBuilder();
@@ -66,7 +68,11 @@ public class CLI
         ParserEngine engine = builder.build();
 
         // 4. Call parse() on engine
-        engine.parse(CLI.class.getResourceAsStream("/stockholm_walk.nmea"));
+        if (args.length == 0) {
+            engine.parse(CLI.class.getResourceAsStream("/stockholm_walk.nmea"));
+        } else {
+            engine.parse(new FileInputStream(args[0]));
+        }
 
     }
 

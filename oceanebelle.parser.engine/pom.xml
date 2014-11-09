@@ -8,7 +8,7 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>oceanebelle.parser.nmea.engine</artifactId>
+  <artifactId>oceanebelle.parser.engine</artifactId>
   <version>1.0-SNAPSHOT</version>
   <name>oceanebelle.parser.engine</name>
   <url>http://maven.apache.org</url>

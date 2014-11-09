@@ -33,11 +33,18 @@ public abstract class AbstractNmeaRegexParser implements Parser<NmeaEvent, NmeaP
         Matcher matcher = getPattern().matcher(rawSentence);
 
         if (matcher.matches()) {
-
-            Map<NmeaProperty, Object> payload =  populatePayload(rawSentence, matcher);
-            payload.put(NmeaProperty.Type, getHandledEvent().name());
-            payload.put(NmeaProperty.IsValidChecksum, validChecksum);
-            handler.handle(payload);
+            // Discard events that matched but is not valid.
+            if (!isValid(matcher)) {
+                return;
+            }
+            try {
+                Map<NmeaProperty, Object> payload = populatePayload(rawSentence, matcher);
+                payload.put(NmeaProperty.Type, getHandledEvent().name());
+                payload.put(NmeaProperty.IsValidChecksum, validChecksum);
+                handler.handle(payload);
+            } catch (Exception ex) {
+                throw new ParseException(String.format("Payload processing failed: %s", rawSentence), ex);
+            }
         } else {
             throw new ParseException(String.format("%s parser failed to match: %s", getClass(), rawSentence));
         }
