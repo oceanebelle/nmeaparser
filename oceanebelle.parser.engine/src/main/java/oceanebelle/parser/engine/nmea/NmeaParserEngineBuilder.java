@@ -6,6 +6,7 @@ import oceanebelle.parser.engine.Parser;
 import oceanebelle.parser.engine.ParserEngine;
 import oceanebelle.parser.engine.ParserEngineBuilder;
 import oceanebelle.parser.engine.ParserHandler;
+import oceanebelle.parser.engine.SerialParserEngine;
 import oceanebelle.parser.engine.Translator;
 import oceanebelle.parser.engine.nmea.model.NmeaProperty;
 
@@ -18,10 +19,21 @@ public class NmeaParserEngineBuilder implements ParserEngineBuilder<NmeaEvent, N
     private final Map<NmeaEvent, ParserHandler<NmeaEvent, NmeaProperty>> handlers = new HashMap<NmeaEvent, ParserHandler<NmeaEvent, NmeaProperty>>();
     private EnumSet<NmeaEvent> events;
     private ErrorHandler errorHandler;
+    private boolean useParallel;
 
     public NmeaParserEngineBuilder(Map<NmeaEvent, Parser<NmeaEvent, NmeaProperty>> parsers, Translator<NmeaEvent> translator) {
         this.allParsers = Collections.unmodifiableMap(parsers);
         this.translator = translator;
+    }
+
+    /**
+     * In some cases, parallel engine may provide faster performance than a serial engine.
+     * @param useParallel
+     * @return
+     */
+    public NmeaParserEngineBuilder useParallelEngine(boolean useParallel) {
+        this.useParallel = useParallel;
+        return this;
     }
 
     @Override
@@ -68,7 +80,11 @@ public class NmeaParserEngineBuilder implements ParserEngineBuilder<NmeaEvent, N
             engineHandlers.put(event, handlers.get(event));
         }
 
-        return new ParallelParserEngine<NmeaEvent, NmeaProperty>(engineParsers, engineHandlers, translator, errorHandler);
+        if (useParallel) {
+            return new ParallelParserEngine<NmeaEvent, NmeaProperty>(engineParsers, engineHandlers, translator, errorHandler);
+        } else {
+            return new SerialParserEngine<NmeaEvent, NmeaProperty>(engineParsers, engineHandlers, translator, errorHandler);
+        }
     }
 
     private boolean isValid() {

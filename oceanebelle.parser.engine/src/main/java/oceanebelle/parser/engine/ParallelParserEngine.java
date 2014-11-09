@@ -7,6 +7,11 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * One thread reads and another thread processes and sends events.
+ * @param <T>
+ * @param <P>
+ */
 public class ParallelParserEngine<T, P> implements ParserEngine {
 
     private final BlockingQueue<ParserTask> taskQueue = new ArrayBlockingQueue<ParserTask>(100);

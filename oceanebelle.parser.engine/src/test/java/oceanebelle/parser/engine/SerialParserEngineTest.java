@@ -21,8 +21,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
-
-public class ParallelParserEngineTest extends NmeaParserEngineTest {
+public class SerialParserEngineTest extends NmeaParserEngineTest {
 
     @Override
     public ParserEngine getEngine(
@@ -30,6 +29,6 @@ public class ParallelParserEngineTest extends NmeaParserEngineTest {
             Map<NmeaEvent, ParserHandler<NmeaEvent, NmeaProperty>> handlers,
             Translator<NmeaEvent> mockTranslator,
             ErrorHandler errorHandler) {
-        return new ParallelParserEngine<NmeaEvent, NmeaProperty>(parsers, handlers, mockTranslator, errorHandler);
+        return new SerialParserEngine<NmeaEvent, NmeaProperty>(parsers, handlers, mockTranslator, errorHandler);
     }
 }

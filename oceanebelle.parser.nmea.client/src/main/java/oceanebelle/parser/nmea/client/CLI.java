@@ -22,6 +22,13 @@ public class CLI
         // 1. Create a builder from NMEA factory
         NmeaParserEngineBuilder builder = NmeaParserEngineFactory.newBuilder();
 
+        // use parallel engine for processing
+        // builder.useParallelEngine(true);
+
+        // use serial engine for processing
+        builder.useParallelEngine(false);
+
+
         // 2. Configure builders by adding handlers
         builder.addErrorHandler(new ErrorHandler() {
             @Override
