@@ -34,19 +34,27 @@ import java.util.regex.Pattern;
  */
 public class GprmcNmeaParser extends AbstractNmeaRegexParser {
 
+    private static final int TIM = 1;
+    private static final int LAT = 4;
+    private static final int LATD = 5;
+    private static final int LON = 6;
+    private static final int LOND = 7;
+    private static final int SPEED = 8;
+    private static final int DATE = 10;
+
     private final static Pattern GGA_PATTERN = Pattern.compile(
             "^\\$GPRMC," +
-                    "(?<tim>\\d+(\\.\\d+)?)," +
-                    "(?<status>[AV])," +
-                    "(?<lat>\\d+\\.\\d+)," +
-                    "(?<latd>[NS])," +
-                    "(?<lon>\\d+\\.\\d+)," +
-                    "(?<lond>[EW])," +
-                    "(?<speed>\\d+\\.\\d+)," +
-                    "(?<trackAngle>\\d+\\.\\d+)," +
-                    "(?<date>\\d+)," +
-                    "(?<mag>(\\d+\\.\\d+)?)," +
-                    "[^,]*\\*(?<chk>[A-Za-z\\d]+)$");
+                    "(\\d+)(\\.\\d+)?," +           // tim 1 & 2
+                    "([AV])," +                     // status 3
+                    "(\\d+\\.\\d+)," +              // lat 4
+                    "([NS])," +                     // latd 5
+                    "(\\d+\\.\\d+)," +              // lon 6
+                    "([EW])," +                     // lond 7
+                    "(\\d+\\.\\d+)," +              // speed 8
+                    "(\\d+\\.\\d+)," +              // track 9
+                    "(\\d+)," +                     // date 10
+                    "((\\d+\\.\\d+)?)," +           // mag 11
+                    "[^,]*\\*([A-Za-z\\d]+)$");     // chk 12
 
     @Override
     public NmeaEvent getHandledEvent() {
@@ -58,12 +66,12 @@ public class GprmcNmeaParser extends AbstractNmeaRegexParser {
         NmeaDataMapBuilder builder = new NmeaDataMapBuilder();
 
         builder.setCoordinates(Coordinates.of(
-                matcher.group("lat"),
-                matcher.group("latd"),
-                matcher.group("lon"),
-                matcher.group("lond")));
-        builder.setSpeed(Float.valueOf(matcher.group("speed")));
-        builder.setDateTimeData(DateTimeData.forDateAndTime(matcher.group("date"), matcher.group("tim")));
+                matcher.group(LAT),
+                matcher.group(LATD),
+                matcher.group(LON),
+                matcher.group(LOND)));
+        builder.setSpeed(Float.valueOf(matcher.group(SPEED)));
+        builder.setDateTimeData(DateTimeData.forDateAndTime(matcher.group(DATE), matcher.group(TIM)));
 
         return builder.toMap();
     }

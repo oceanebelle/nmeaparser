@@ -44,21 +44,30 @@ import java.util.regex.Pattern;
  */
 public class GpggaNmeaParser extends AbstractNmeaRegexParser {
 
+
+    private static final int LAT = 2;
+    private static final int LATD = 3;
+    private static final int LON = 4;
+    private static final int LOND = 5;
+    private static final int FIX = 6;
+    private static final int SAT = 7;
+    private static final int ALT = 9;
+
     private final static Pattern GGA_PATTERN = Pattern.compile(
             "^\\$GPGGA," +
-            "(?<tim>\\d+(\\.\\d+)?)," +
-            "(?<lat>\\d+\\.\\d+)," +
-            "(?<latd>[NS])," +
-            "(?<lon>\\d+\\.\\d+)," +
-            "(?<lond>[EW])," +
-            "(?<fix>[0-8])," +
-            "(?<sat>[0-8]+)," +
-            "(?<hdil>\\d+\\.\\d+)," +
-            "(?<alt>\\d+\\.\\d+)," +
-            "(?<altunit>[M])," +
-            "(?<geo>\\d+\\.\\d+)," +
-            "(?<geounit>[M]),[^,]*," +
-            "[^,]*\\*(?<chk>[A-Za-z\\d]+)$");
+            "\\d+(\\.\\d+)?," +         // tim      1
+            "(\\d+\\.\\d+)," +          // lat      2
+            "([NS])," +                 // latd     3
+            "(\\d+\\.\\d+)," +          // lon      4
+            "([EW])," +                 // lond     5
+            "([0-8])," +                // fix      6
+            "([0-8]+)," +               // sat      7
+            "(\\d+\\.\\d+)," +          // hdil     8
+            "(\\d+\\.\\d+)," +          // alt      9
+            "([M])," +                  // altunit  10
+            "(\\d+\\.\\d+)," +          // geo      11
+            "([M]),[^,]*," +            // geounit  12
+            "[^,]*\\*([A-Za-z\\d]+)$"); // checksum 13
 
     @Override
     public NmeaEvent getHandledEvent() {
@@ -70,13 +79,13 @@ public class GpggaNmeaParser extends AbstractNmeaRegexParser {
         NmeaDataMapBuilder builder = new NmeaDataMapBuilder();
 
         builder.setCoordinates(Coordinates.of(
-                matcher.group("lat"),
-                matcher.group("latd"),
-                matcher.group("lon"),
-                matcher.group("lond")));
-        builder.setFixQuality(FixQuality.of(matcher.group("fix")));
-        builder.setSatellites(Integer.valueOf(matcher.group("sat")));
-        builder.setAltitude(Float.valueOf(matcher.group("alt")));
+                matcher.group(LAT),
+                matcher.group(LATD),
+                matcher.group(LON),
+                matcher.group(LOND)));
+        builder.setFixQuality(FixQuality.of(matcher.group(FIX)));
+        builder.setSatellites(Integer.valueOf(matcher.group(SAT)));
+        builder.setAltitude(Float.valueOf(matcher.group(ALT)));
 
         return builder.toMap();
     }
