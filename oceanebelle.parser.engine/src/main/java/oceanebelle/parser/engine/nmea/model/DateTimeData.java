@@ -24,6 +24,11 @@ public class DateTimeData {
         return rawTime;
     }
 
+    @Override
+    public String toString() {
+        return getCalendar().getTime().toString();
+    }
+
     /**
      * UTC
      * @return

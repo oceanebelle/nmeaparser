@@ -51,6 +51,10 @@ public class NmeaDataAdapter {
         return EnumSet.copyOf(payload.keySet()).containsAll(props);
     }
 
+    public Object getProperty(NmeaProperty property) {
+        return payload.get(property);
+    }
+
     public <N> N getProperty(NmeaProperty property, Class<N> type) {
         if (payload.containsKey(property) ) {
             Object data = payload.get(property);

@@ -41,6 +41,14 @@ public class Coordinates {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "Coordinates{" +
+                "latitude=" + latitude +
+                ", longitude=" + longitude +
+                '}';
+    }
+
     /**
      * 4807.038,N   Latitude 48 deg 07.038' N
      * 01131.000,E  Longitude 11 deg 31.000' E

@@ -1,5 +1,15 @@
 package oceanebelle.parser.nmea.client;
 
+import oceanebelle.parser.engine.ErrorHandler;
+import oceanebelle.parser.engine.ParseException;
+import oceanebelle.parser.engine.ParserEngine;
+import oceanebelle.parser.engine.ParserHandler;
+import oceanebelle.parser.engine.nmea.NmeaEvent;
+import oceanebelle.parser.engine.nmea.NmeaParserEngineBuilder;
+import oceanebelle.parser.engine.nmea.NmeaParserEngineFactory;
+import oceanebelle.parser.engine.nmea.model.NmeaDataAdapter;
+import oceanebelle.parser.engine.nmea.model.NmeaProperty;
+
 /**
  *
  */
@@ -7,9 +17,80 @@ public class CLI
 {
     public static void main( String[] args )
     {
-        // TODO...
 
+        // 1. Create a builder from NMEA factory
+        NmeaParserEngineBuilder builder = NmeaParserEngineFactory.newBuilder();
 
-        System.out.println( "Hello World!" );
+        // 2. Configure builders by adding handlers
+        builder.addErrorHandler(new ErrorHandler() {
+            @Override
+            public void handle(ParseException error) {
+                // Do something with the error here
+                error.printStackTrace();
+            }
+        });
+
+        // Handler for GGA
+        builder.addEventHandler(new ParserHandler<NmeaEvent>() {
+            @Override
+            public NmeaEvent getHandledEvent() {
+                return NmeaEvent.GPGGA;
+            }
+
+            @Override
+            public void handle(NmeaDataAdapter payload) {
+                // payload will have properties applicable to GGA
+                // Note the payload has helper methods to retrieve properties
+                System.out.println(toPrettyPrint(
+                        payload,
+                        NmeaProperty.Type,
+                        NmeaProperty.IsValidChecksum,
+                        NmeaProperty.Coordinates,
+                        NmeaProperty.Altitude,
+                        NmeaProperty.Satellites
+                ));
+
+            }
+        });
+
+        // Handler for RMC
+        builder.addEventHandler(new ParserHandler<NmeaEvent>() {
+            @Override
+            public NmeaEvent getHandledEvent() {
+                return NmeaEvent.GPRMC;
+            }
+
+            @Override
+            public void handle(NmeaDataAdapter payload) {
+                System.out.println(toPrettyPrint(
+                        payload,
+                        NmeaProperty.Type,
+                        NmeaProperty.IsValidChecksum,
+                        NmeaProperty.Coordinates,
+                        NmeaProperty.Speed,
+                        NmeaProperty.DateTimeData
+                ));
+            }
+        });
+
+        // 3. Build the engine
+        ParserEngine engine = builder.build();
+
+        // 4. Call parse() on engine
+        engine.parse(CLI.class.getResourceAsStream("/stockholm_walk.nmea"));
+
+    }
+
+    private static String toPrettyPrint(NmeaDataAdapter payload, NmeaProperty... properties) {
+        StringBuilder sb = new StringBuilder();
+
+        for(NmeaProperty property : properties) {
+            sb.append(property)
+                    .append("=").
+                    append(payload.getProperty(property))
+                    .append("; ");
+        }
+
+        return sb.toString();
     }
 }
