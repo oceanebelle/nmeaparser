@@ -42,53 +42,61 @@ A handler is called once for every line associated with that event.
 
 ```java
         // 1. Create a builder from NMEA factory
-        NmeaParserEngineBuilder builder = NmeaParserEngineFactory.newBuilder();
+                NmeaParserEngineBuilder builder = NmeaParserEngineFactory.newBuilder();
 
-        // 2. Configure builders by adding handlers
-        builder.addErrorHandler(new ErrorHandler() {
-            @Override
-            public void handle(ParseException error) {
-                // Do something with the error here
-                error.printStackTrace();
-            }
-        });
+                // use parallel engine for processing, when processing events may take some time.
+                // builder.useParallelEngine(true);
 
-        // Handler for GGA
-        builder.addEventHandler(NmeaHandlers.forGGA(new NmeaHandlers.HandlerAdapter() {
-            @Override
-            public void handle(NmeaDataAdapter payload) {
-                // payload will have properties applicable to GGA
-                // Note the payload has helper methods to retrieve properties
-                System.out.println(toPrettyPrint(
-                        payload,
-                        NmeaProperty.Type,
-                        NmeaProperty.IsValidChecksum,
-                        NmeaProperty.Coordinates,
-                        NmeaProperty.Altitude,
-                        NmeaProperty.Satellites
-                ));
-            }
-        }));
+                // uses a serial engine for processing, a line is read and processed before moving on to next
+                builder.useParallelEngine(false);
 
-        // Handler for RMC
-        builder.addEventHandler(NmeaHandlers.forRMC(new NmeaHandlers.HandlerAdapter() {
-            @Override
-            public void handle(NmeaDataAdapter payload) {
-                // payload will have properties applicable to GGA
-                System.out.println(toPrettyPrint(
-                        payload,
-                        NmeaProperty.Type,
-                        NmeaProperty.IsValidChecksum,
-                        NmeaProperty.Coordinates,
-                        NmeaProperty.Speed,
-                        NmeaProperty.DateTimeData
-                ));
-            }
-        }));
 
-        // 3. Build the engine
-        ParserEngine engine = builder.build();
+                // 2. Configure builders by adding handlers
+                builder.addErrorHandler(new ErrorHandler() {
+                    @Override
+                    public void handle(ParseException error) {
+                        // Do something with the error here
+                        error.printStackTrace();
+                    }
+                });
 
-        // 4. Call parse() on engine
-        engine.parse(CLI.class.getResourceAsStream("/stockholm_walk.nmea"));
+                // Handler for GGA
+                builder.addEventHandler(NmeaHandlers.forGGA(new NmeaHandlers.HandlerAdapter() {
+                    @Override
+                    public void handle(NmeaDataAdapter payload) {
+                        // payload will have properties applicable to GGA
+                        // Note the payload has helper methods to retrieve properties
+                        System.out.println(toPrettyPrint(
+                                payload,
+                                NmeaProperty.Type,
+                                NmeaProperty.IsValidChecksum,
+                                NmeaProperty.Coordinates,
+                                NmeaProperty.Altitude,
+                                NmeaProperty.Satellites
+                        ));
+                    }
+                }));
+
+                // Handler for RMC
+                builder.addEventHandler(NmeaHandlers.forRMC(new NmeaHandlers.HandlerAdapter() {
+                    @Override
+                    public void handle(NmeaDataAdapter payload) {
+                        // payload will have properties applicable to RMC
+                        System.out.println(toPrettyPrint(
+                                payload,
+                                NmeaProperty.Type,
+                                NmeaProperty.IsValidChecksum,
+                                NmeaProperty.Coordinates,
+                                NmeaProperty.Speed,
+                                NmeaProperty.DateTimeData
+                        ));
+                    }
+                }));
+
+                // 3. Build the engine
+                ParserEngine engine = builder.build();
+
+                // 4. Parse input
+                engine.parse(CLI.class.getResourceAsStream("/stockholm_walk.nmea"));
+
 ```

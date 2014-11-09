@@ -22,10 +22,10 @@ public class CLI
         // 1. Create a builder from NMEA factory
         NmeaParserEngineBuilder builder = NmeaParserEngineFactory.newBuilder();
 
-        // use parallel engine for processing
+        // use parallel engine for processing, when processing events may take some time.
         // builder.useParallelEngine(true);
 
-        // use serial engine for processing
+        // uses a serial engine for processing, a line is read and processed before moving on to next
         builder.useParallelEngine(false);
 
 
@@ -59,7 +59,7 @@ public class CLI
         builder.addEventHandler(NmeaHandlers.forRMC(new NmeaHandlers.HandlerAdapter() {
             @Override
             public void handle(NmeaDataAdapter payload) {
-                // payload will have properties applicable to GGA
+                // payload will have properties applicable to RMC
                 System.out.println(toPrettyPrint(
                         payload,
                         NmeaProperty.Type,
