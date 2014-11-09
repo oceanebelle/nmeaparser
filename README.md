@@ -18,7 +18,7 @@ This project is composed of two modules.
 
 ## How to use for parsing NMEA input:
 The module oceanebelle.parser.engine produces a **oceanebelle.parser.engine.jar** which you will need to
-references in your classpath
+reference in your classpath
 
 Imports required by this library
 
@@ -35,8 +35,10 @@ Imports required by this library
 ```
 
 Code Fragment as found in **oceanebelle.parser.nmea.client module**.
+
 Note that call to engine.parse() is _synchronous_ ie the call will not complete until all
 lines are read and registered event payload are processed.
+
 A handler is called once for every line associated with that event.
 
 ```java
