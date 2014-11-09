@@ -34,9 +34,10 @@ Imports required by this library
         import oceanebelle.parser.engine.nmea.model.NmeaProperty;
 ```
 
-Code Fragment as found in oceanebelle.parser.nmea.client module
-Note that call to engine.parse() is synchronous that is the call will not complete until all
-lines are read and registered events handled.
+Code Fragment as found in **oceanebelle.parser.nmea.client module**.
+Note that call to engine.parse() is _synchronous_ ie the call will not complete until all
+lines are read and registered event payload are processed.
+A handler is called once for every line associated with that event.
 
 ```java
         // 1. Create a builder from NMEA factory
