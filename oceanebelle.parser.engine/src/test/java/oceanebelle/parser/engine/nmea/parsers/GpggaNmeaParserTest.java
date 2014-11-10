@@ -1,12 +1,9 @@
 package oceanebelle.parser.engine.nmea.parsers;
 
 import oceanebelle.parser.engine.ParseException;
-import oceanebelle.parser.engine.nmea.model.FixQuality;
+import oceanebelle.parser.engine.nmea.model.*;
 import oceanebelle.parser.engine.nmea.NmeaEvent;
 import oceanebelle.parser.engine.ParserHandler;
-import oceanebelle.parser.engine.nmea.model.Coordinates;
-import oceanebelle.parser.engine.nmea.model.NmeaDataAdapter;
-import oceanebelle.parser.engine.nmea.model.NmeaProperty;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -65,6 +62,10 @@ public class GpggaNmeaParserTest {
 
         NmeaDataAdapter adapter = new NmeaDataAdapter(adapterCaptor.getValue());
 
+        assertEquals(12, adapter.getDateTimeData().getRawTime().getHour());
+        assertEquals(35, adapter.getDateTimeData().getRawTime().getMin());
+        assertEquals(19, adapter.getDateTimeData().getRawTime().getSec());
+
         // TODO: The data will still be read, should processing be skipped?
         assertFalse(adapter.isChecksumValid());
 
@@ -86,6 +87,11 @@ public class GpggaNmeaParserTest {
         assertEquals(Coordinates.of("4807.038","N","01131.000","E"), adapter.getCoordinates());
         assertEquals(Integer.valueOf(8), adapter.getSatellites());
         assertEquals(FixQuality.GPS_SPS, adapter.getFixQuality());
+
+        assertEquals(12, adapter.getDateTimeData().getRawTime().getHour());
+        assertEquals(35, adapter.getDateTimeData().getRawTime().getMin());
+        assertEquals(19, adapter.getDateTimeData().getRawTime().getSec());
+
         assertEquals(545.4f, adapter.getAltitude());
 
     }
@@ -106,6 +112,11 @@ public class GpggaNmeaParserTest {
         assertEquals(Coordinates.of("5920.7019","N","01803.2940","E"), adapter.getCoordinates());
         assertEquals(Integer.valueOf(4), adapter.getSatellites());
         assertEquals(FixQuality.GPS_SPS, adapter.getFixQuality());
+
+        assertEquals(10, adapter.getDateTimeData().getRawTime().getHour());
+        assertEquals(44, adapter.getDateTimeData().getRawTime().getMin());
+        assertEquals(33, adapter.getDateTimeData().getRawTime().getSec());
+
         assertEquals(77.8f, adapter.getAltitude());
 
     }
@@ -120,6 +131,9 @@ public class GpggaNmeaParserTest {
 
         NmeaDataAdapter adapter = new NmeaDataAdapter(adapterCaptor.getValue());
 
+        assertEquals(10, adapter.getDateTimeData().getRawTime().getHour());
+        assertEquals(37, adapter.getDateTimeData().getRawTime().getMin());
+        assertEquals(48, adapter.getDateTimeData().getRawTime().getSec());
         assertCommonNmeaData(adapter);
     }
 
@@ -146,10 +160,9 @@ public class GpggaNmeaParserTest {
         assertEquals(NmeaEvent.GPGGA.name(), adapter.getProperty(NmeaProperty.Type, String.class));
 
         // not set
-        assertFalse(adapter.hasProperties(NmeaProperty.DateTimeData));
         assertFalse(adapter.hasProperties(NmeaProperty.Speed));
 
-        assertNull(adapter.getDateTimeData());
+
         assertNull(adapter.getSpeed());
     }
 }

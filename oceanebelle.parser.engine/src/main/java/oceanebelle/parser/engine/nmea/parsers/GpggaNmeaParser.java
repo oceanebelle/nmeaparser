@@ -1,10 +1,7 @@
 package oceanebelle.parser.engine.nmea.parsers;
 
 import oceanebelle.parser.engine.nmea.NmeaEvent;
-import oceanebelle.parser.engine.nmea.model.Coordinates;
-import oceanebelle.parser.engine.nmea.model.FixQuality;
-import oceanebelle.parser.engine.nmea.model.NmeaDataMapBuilder;
-import oceanebelle.parser.engine.nmea.model.NmeaProperty;
+import oceanebelle.parser.engine.nmea.model.*;
 
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -45,6 +42,7 @@ import java.util.regex.Pattern;
 public class GpggaNmeaParser extends AbstractNmeaRegexParser {
 
 
+    private static final int TIME = 1;
     private static final int LAT = 3;
     private static final int LATD = 4;
     private static final int LON = 5;
@@ -92,6 +90,7 @@ public class GpggaNmeaParser extends AbstractNmeaRegexParser {
         builder.setFixQuality(FixQuality.of(matcher.group(FIX)));
         builder.setSatellites(Integer.valueOf(matcher.group(SAT)));
         builder.setAltitude(Float.valueOf(matcher.group(ALT)));
+        builder.setDateTimeData(DateTimeData.forTime(matcher.group(TIME)));
 
         return builder.toMap();
     }
