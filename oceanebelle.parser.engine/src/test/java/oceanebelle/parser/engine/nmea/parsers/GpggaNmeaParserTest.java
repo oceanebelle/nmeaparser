@@ -138,6 +138,24 @@ public class GpggaNmeaParserTest {
     }
 
     @Test
+    public void whenParsingValidPattern4() throws ParseException {
+        String sentence = "$GPGGA,151714,5121.472507,N,00011.732892,W,2,09,0.8,-11.0,M,47.0,M,,*4A";
+
+        parser.parse(sentence, handler);
+
+        verify(handler).handle(adapterCaptor.capture());
+
+        NmeaDataAdapter adapter = new NmeaDataAdapter(adapterCaptor.getValue());
+
+        assertEquals(15, adapter.getDateTimeData().getRawTime().getHour());
+        assertEquals(17, adapter.getDateTimeData().getRawTime().getMin());
+        assertEquals(14, adapter.getDateTimeData().getRawTime().getSec());
+        assertEquals(-11f, adapter.getAltitude());
+    }
+
+
+
+    @Test
     public void whenParsingEmptyPattern() throws ParseException {
         String sentence = "$GPGGA,,,,,,0,,,,,,,,*66";
 

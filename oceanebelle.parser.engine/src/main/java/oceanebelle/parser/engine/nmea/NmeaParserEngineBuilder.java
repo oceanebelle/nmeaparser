@@ -20,6 +20,7 @@ public class NmeaParserEngineBuilder implements ParserEngineBuilder<NmeaEvent, N
     private EnumSet<NmeaEvent> events;
     private ErrorHandler errorHandler;
     private boolean useParallel;
+    private int bufferSize = 1; // defaults to 1 byte
 
     public NmeaParserEngineBuilder(Map<NmeaEvent, Parser<NmeaEvent, NmeaProperty>> parsers, Translator<NmeaEvent> translator) {
         this.allParsers = Collections.unmodifiableMap(parsers);
@@ -33,6 +34,11 @@ public class NmeaParserEngineBuilder implements ParserEngineBuilder<NmeaEvent, N
      */
     public NmeaParserEngineBuilder useParallelEngine(boolean useParallel) {
         this.useParallel = useParallel;
+        return this;
+    }
+
+    public NmeaParserEngineBuilder setBufferSizeInBytes(int bufferSize) {
+        this.bufferSize = bufferSize;
         return this;
     }
 
@@ -81,9 +87,9 @@ public class NmeaParserEngineBuilder implements ParserEngineBuilder<NmeaEvent, N
         }
 
         if (useParallel) {
-            return new ParallelParserEngine<NmeaEvent, NmeaProperty>(engineParsers, engineHandlers, translator, errorHandler);
+            return new ParallelParserEngine<NmeaEvent, NmeaProperty>(bufferSize, engineParsers, engineHandlers, translator, errorHandler);
         } else {
-            return new SerialParserEngine<NmeaEvent, NmeaProperty>(engineParsers, engineHandlers, translator, errorHandler);
+            return new SerialParserEngine<NmeaEvent, NmeaProperty>(bufferSize, engineParsers, engineHandlers, translator, errorHandler);
         }
     }
 

@@ -2,24 +2,21 @@ package oceanebelle.parser.engine;
 
 import java.io.InputStream;
 import java.util.Map;
-import java.util.Scanner;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Serial read the sentence and then process.
  * @param <T>
  * @param <P>
  */
-public class SerialParserEngine<T, P> implements ParserEngine {
+public class SerialParserEngine<T, P> extends StreamingParserEngine {
 
     private final Map<T, Parser<T, P>> engineParsers;
     private final Map<T, ParserHandler<T, P>> engineHandlers;
     private final Translator<T> translator;
     private final ErrorHandler errorHandler;
 
-    public SerialParserEngine(Map<T, Parser<T, P>> engineParsers, Map<T, ParserHandler<T, P>> engineHandlers, Translator<T> translator, ErrorHandler errorHandler) {
+    public SerialParserEngine(int bufferSize, Map<T, Parser<T, P>> engineParsers, Map<T, ParserHandler<T, P>> engineHandlers, Translator<T> translator, ErrorHandler errorHandler) {
+        super(bufferSize);
         this.engineParsers = engineParsers;
         this.engineHandlers = engineHandlers;
         this.translator = translator;
@@ -28,39 +25,38 @@ public class SerialParserEngine<T, P> implements ParserEngine {
 
     @Override
     public int parse(InputStream input) {
-        Scanner scanner = null;
 
-        int events_processed = 0;
+        final StatsData stats = new StatsData();
+        stats.events_processed = 0;
 
         try {
+            processStream(input, new SentenceHandler() {
+                @Override
+                public void handle(String sentence) throws ParseException {
 
-            scanner = new Scanner(input, "UTF-8");
-            while(scanner.hasNextLine()) {
-                String sentence = scanner.nextLine();
-
-                T event = translator.translate(sentence);
-                if (event != null && engineParsers.containsKey(event)) {
-                    events_processed++;
-                    Parser<T, P> parser = engineParsers.get(event);
-                    ParserHandler<T, P> handler = engineHandlers.get(event);
-                    try {
-                        parser.parse(sentence, handler);
-                    } catch (ParseException e) {
-                        if (errorHandler != null) {
-                            errorHandler.handle(e);
+                    T event = translator.translate(sentence);
+                    if (event != null && engineParsers.containsKey(event)) {
+                        stats.events_processed++;
+                        Parser<T, P> parser = engineParsers.get(event);
+                        ParserHandler<T, P> handler = engineHandlers.get(event);
+                        try {
+                            parser.parse(sentence, handler);
+                        } catch (ParseException e) {
+                            if (errorHandler != null) {
+                                errorHandler.handle(e);
+                            }
                         }
                     }
+
                 }
-
-            }
-
-        } finally {
-            if (scanner != null) {
-                scanner.close();
+            });
+        } catch (ParseException e) {
+            if (errorHandler != null) {
+                errorHandler.handle(e);
             }
         }
 
-        return events_processed;
+        return stats.events_processed;
     }
 
 }

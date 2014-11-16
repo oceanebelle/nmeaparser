@@ -1,5 +1,6 @@
 package oceanebelle.parser.nmea.client;
 
+import com.google.common.base.Stopwatch;
 import oceanebelle.parser.engine.ErrorHandler;
 import oceanebelle.parser.engine.ParseException;
 import oceanebelle.parser.engine.ParserEngine;
@@ -11,6 +12,7 @@ import oceanebelle.parser.engine.nmea.model.NmeaProperty;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -27,6 +29,9 @@ public class CLI
 
         // uses a serial engine for processing, a line is read and processed before moving on to next
         builder.useParallelEngine(false);
+
+        // set the size of the buffer when reading from a stream, defaults 1
+        builder.setBufferSizeInBytes(32);
 
 
         // 2. Configure builders by adding handlers
@@ -75,11 +80,16 @@ public class CLI
         ParserEngine engine = builder.build();
 
         // 4. Call parse() on engine
+
+        Stopwatch timer = Stopwatch.createStarted();
+        int events;
         if (args.length == 0) {
-            engine.parse(CLI.class.getResourceAsStream("/stockholm_walk.nmea"));
+            events = engine.parse(CLI.class.getResourceAsStream("/stockholm_walk.nmea"));
         } else {
-            engine.parse(new FileInputStream(args[0]));
+            events = engine.parse(new FileInputStream(args[0]));
         }
+
+        System.out.println(String.format("Completed in %d ms with %d", timer.elapsed(TimeUnit.MILLISECONDS), events));
 
     }
 

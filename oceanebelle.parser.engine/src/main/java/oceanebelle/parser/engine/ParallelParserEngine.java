@@ -1,8 +1,8 @@
 package oceanebelle.parser.engine;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
  * @param <T>
  * @param <P>
  */
-public class ParallelParserEngine<T, P> implements ParserEngine {
+public class ParallelParserEngine<T, P> extends StreamingParserEngine {
 
     private final BlockingQueue<ParserTask> taskQueue = new ArrayBlockingQueue<ParserTask>(100);
 
@@ -23,7 +23,8 @@ public class ParallelParserEngine<T, P> implements ParserEngine {
 
     private transient boolean done = false;
 
-    public ParallelParserEngine(Map<T, Parser<T, P>> engineParsers, Map<T, ParserHandler<T, P>> engineHandlers, Translator<T> translator, ErrorHandler errorHandler) {
+    public ParallelParserEngine(int bufferSize, Map<T, Parser<T, P>> engineParsers, Map<T, ParserHandler<T, P>> engineHandlers, Translator<T> translator, ErrorHandler errorHandler) {
+        super(bufferSize);
         this.engineParsers = engineParsers;
         this.engineHandlers = engineHandlers;
         this.translator = translator;
@@ -33,41 +34,56 @@ public class ParallelParserEngine<T, P> implements ParserEngine {
     @Override
     public int parse(InputStream input) {
         // Calling thread reads the input, processing thread to parse a sentence and pass to delegate handler.
-        Scanner scanner = null;
+
         Thread processor = new Thread(new TaskProcessor());
         processor.setDaemon(true);
 
         done = false;
-        int events_processed = 0;
+        final StatsData stats = new StatsData();
+        stats.events_processed = 0;
 
         try {
             processor.start();
 
-            scanner = new Scanner(input, "UTF-8");
-            while(scanner.hasNextLine()) {
-                String sentence = scanner.nextLine();
-
-                T event = translator.translate(sentence);
-                if (event != null && engineParsers.containsKey(event)) {
-                    events_processed++;
-                    ParserTask<T, P> task = new ParserTask<T, P>(sentence, engineParsers.get(event), engineHandlers.get(event), errorHandler);
-                    // sometimes the processor can take some time so wait patiently...
-                    while (!taskQueue.offer(task, 1l, TimeUnit.MILLISECONDS));
+            processStream(input, new SentenceHandler() {
+                @Override
+                public void handle(String sentence) throws ParseException {
+                    T event = translator.translate(sentence);
+                    if (event != null && engineParsers.containsKey(event)) {
+                        stats.events_processed++;
+                        ParserTask<T, P> task = new ParserTask<T, P>(sentence, engineParsers.get(event), engineHandlers.get(event), errorHandler);
+                        // sometimes the processor can take some time so wait patiently...
+                        try {
+                            while (!taskQueue.offer(task, 1l, TimeUnit.MILLISECONDS)) ;
+                        } catch (InterruptedException e) {
+                            throw new ParseException(e.getMessage(), e);
+                        }
+                    }
                 }
+            });
 
-            }
             done = true;
 
             processor.join();
+        } catch (ParseException pe) {
+            raiseError(pe);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            raiseError(e);
         } finally {
-            if (scanner != null) {
-                scanner.close();
+            try {
+                input.close();
+            } catch (IOException e) {
+                raiseError(e);
             }
         }
 
-        return events_processed;
+        return stats.events_processed;
+    }
+
+    private void raiseError(Exception error) {
+        if (errorHandler != null) {
+            errorHandler.handle(new ParseException(String.format("Parse exception: %s", error.getMessage()), error));
+        }
     }
 
     private class TaskProcessor implements Runnable {
