@@ -50,6 +50,9 @@ A handler is called once for every line associated with that event.
                 // uses a serial engine for processing, a line is read and processed before moving on to next
                 builder.useParallelEngine(false);
 
+                // set the size of the memory buffer in kB used to store read data from the stream, defaults 1kb
+                builder.setBufferSize(32);
+
 
                 // 2. Configure builders by adding handlers
                 builder.addErrorHandler(new ErrorHandler() {

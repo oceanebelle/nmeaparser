@@ -54,7 +54,7 @@ public class NmeaParserIntegrationTest {
                 .addErrorHandler(errHandler)
                 .addEventHandler(rmcHandler)
                 .addEventHandler(ggaHandler)
-                .setBufferSizeInBytes(32);
+                .setBufferSize(32);
 
         // 3. Build the engine
         ParserEngine engine = builder.build();

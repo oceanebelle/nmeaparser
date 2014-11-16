@@ -37,7 +37,14 @@ public class NmeaParserEngineBuilder implements ParserEngineBuilder<NmeaEvent, N
         return this;
     }
 
-    public NmeaParserEngineBuilder setBufferSizeInBytes(int bufferSize) {
+    /**
+     * Increase the memory buffer size of read data from a stream. Defaults to 1kB.
+     * Purpose: increase performance by processing more data in process and reduce IO operations.
+     *
+     * @param kiloBytes size in kiloBytes
+     * @return
+     */
+    public NmeaParserEngineBuilder setBufferSize(int kiloBytes) {
         this.bufferSize = bufferSize;
         return this;
     }
