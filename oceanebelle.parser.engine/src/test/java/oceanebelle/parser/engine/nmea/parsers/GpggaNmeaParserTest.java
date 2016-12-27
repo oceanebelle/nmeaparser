@@ -153,6 +153,19 @@ public class GpggaNmeaParserTest {
         assertEquals(-11f, adapter.getAltitude());
     }
 
+    @Test
+    public void whenParsingNegativeGeoId() throws ParseException {
+        String sentence = "$GPGGA,214213.00,3249.263664,N,11710.592247,W,1,11,0.6,102.2,M,-26.0,M,,*51";
+        parser.parse(sentence, handler);
+
+        verify(handler).handle(adapterCaptor.capture());
+
+        NmeaDataAdapter adapter = new NmeaDataAdapter(adapterCaptor.getValue());
+
+        assertEquals(21, adapter.getDateTimeData().getRawTime().getHour());
+        assertEquals(42, adapter.getDateTimeData().getRawTime().getMin());
+        assertEquals(13, adapter.getDateTimeData().getRawTime().getSec());
+    }
 
 
     @Test
