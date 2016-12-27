@@ -63,7 +63,7 @@ public class GpggaNmeaParser extends AbstractNmeaRegexParser {
             "(\\d+\\.\\d+)?," +          // hdil     9
             "(\\d+\\.\\d+|\\-\\d+\\.\\d+)?," +          // alt      10
             "([M])?," +                  // altunit  11
-            "(\\d+\\.\\d+)?," +          // geo      12
+            "(\\d+\\.\\d+|\\-\\d+\\.\\d+)?," +          // geo      12
             "([M])?," +                 // geounit  13
             "[^,]*," +
             "[^,]*\\*([A-Za-z\\d]+)$"); // checksum 14
